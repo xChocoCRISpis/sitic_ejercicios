@@ -6,10 +6,10 @@ IF NOT EXISTS(SELECT name FROM sys.databases WHERE name = 'SITIC_GTA')
 BEGIN
 	CREATE DATABASE SITIC_GTA;
 END;
-GO;
+GO
 
 USE SITIC_GTA;
-GO;
+GO
 
 
 --_____________________________________--
@@ -20,7 +20,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.schemas WHERE name='priorities')
 BEGIN
 	EXEC('CREATE SCHEMA priorities');
 END;
-GO;
+GO
 
 
 
@@ -35,7 +35,7 @@ IF NOT EXISTS(SELECT 1 FROM sys.schemas WHERE name='tasks')
 BEGIN
 	EXEC('CREATE SCHEMA tasks');
 END;
-GO;
+GO
 
 
 
@@ -52,7 +52,7 @@ BEGIN
 		code CHAR(2)
 	);
 END;
-GO;
+GO
 
 
 IF NOT EXISTS (SELECT 1 FROM dbo.sysobjects WHERE id = OBJECT_ID (N'[dbo].[states]') AND OBJECTPROPERTY(id,N'isUserTable')=1)
@@ -63,7 +63,7 @@ BEGIN
 		code CHAR(2)
 	);
 END;
-GO;
+GO
 
 
 
@@ -81,4 +81,4 @@ BEGIN
 		FOREIGN KEY ([state]) REFERENCES states(id)
 	);
 END;
-GO;
+GO
