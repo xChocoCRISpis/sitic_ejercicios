@@ -15,25 +15,32 @@ namespace sitic_gtp
     #region priorities class
     class Tb_priorities
     {
+        //static para usarlo como referencia
+        private static int lastId = 0;
         private int _id;
+
         private string _priority;
         private EPriorityCode _code;
 
         public Tb_priorities() { }
 
+        /*
         public Tb_priorities(int id,string priority, EPriorityCode code) { 
             this.id= id;
             this.priority= priority;
             this.code= code;
         }
+        */
 
         public Tb_priorities(string priority, EPriorityCode code)
         {
+            //seteo _id como la static +1, para devolver el estado del incremento y no el valor del static
+            this.id = ++lastId;
             this.priority = priority;
             this.code = code;
         }
 
-        public int id { get => _id; set => _id = value; }
+        public int id { get => _id; private set => _id = value; }
         public string priority { get => _priority; set => _priority = value; }
         public EPriorityCode code { get => _code; set => _code = value; }
     }
@@ -44,9 +51,9 @@ namespace sitic_gtp
 
         public Priorities() {
             _priorities = new List<Tb_priorities>() {
-                new Tb_priorities(1,"HIGH PRIORITY",EPriorityCode.HP),
-                new Tb_priorities(2,"MEDIUM PRIORITY",EPriorityCode.MP),
-                new Tb_priorities(3,"LOW PRIORITY",EPriorityCode.LP)
+                new Tb_priorities("HIGH PRIORITY",EPriorityCode.HP),
+                new Tb_priorities("MEDIUM PRIORITY",EPriorityCode.MP),
+                new Tb_priorities("LOW PRIORITY",EPriorityCode.LP)
             };
         }
 
