@@ -6,17 +6,21 @@ using System.Linq.Expressions;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection.PortableExecutable;
 using System.Collections.Immutable;
+using System.Reflection.Metadata.Ecma335;
 
 namespace sitic_gtp
 {
     #region class_error
-    public class CustomException : Exception
+    public class CustomExceptions : Exception
     {
-        private EErrors ErrorResponse { get; set; } = EErrors.Unkwnown;
+        private EErrors ErrorResponse { get; set; } = EErrors.Unknown;
 
-        public CustomException() : base() { }
 
-        public CustomException(string message, EErrors error) : base(message)
+        //La clase base, sirve para usar el metodo del padre.
+        //En este ejemplo el constructor de la clase "Exception"
+        public CustomExceptions() : base() { }
+
+        public CustomExceptions(string message, EErrors error) : base(message)
         {
             ErrorResponse = error;
         }
@@ -27,11 +31,13 @@ namespace sitic_gtp
         Empty,
         Validation,
         Null,
-        Unkwnown = 500
+        Unknown = 500
     }
     #endregion
+    #region main
     class Program
     {
+        #region dictionary-headers
         private static readonly Dictionary<string, string> headers = new Dictionary<string, string> {
                 {"OrderByPriority","///////////////////////    ORDENADO POR PRIORIDAD    /////////////////////////////" },
                 {"OrderByState", "///////////////////////    ORDENADO POR ESTADO    /////////////////////////////" },
@@ -39,24 +45,48 @@ namespace sitic_gtp
                 {"FilterByToDo" ,"///////////////////////    FILTRADO POR TO DO  /////////////////////////////"},
                 {"FilterByHP" ,"///////////////////////    FILTRADO POR HP  /////////////////////////////"},
                 {"FilterByIPAndHP" ,"///////////////////////    FILTRADO POR HP Y IP  /////////////////////////////"},
-                {"GroupByState", "///////////////////////    AGRUPADO POR ESATDO   /////////////////////////////" },
+                {"GroupByState", "///////////////////////    AGRUPADO POR ESTADO   /////////////////////////////" },
                 {"GroupByPriority", "///////////////////////   AGRUPADO POR PRIORIDAD   /////////////////////////////" },
                 {"Default"," ////////////////////////////////////////////////////" }
             };
-
+        #endregion 
         static void Main(string[] args)
         {
             Tasks tasks = new Tasks();
             
             Console.WriteLine("Start");
-            OrderByPriority(tasks.tasks, headers["OrderByPriority"]);
-            OrderByState(tasks.tasks, headers["OrderByState"]);
-            OrderByPriorityAndState(tasks.tasks, headers["OrderByPriorityAndState"]);
-            GroupByState(tasks.tasks, headers["GroupByState"]);
-            GroupByPriority(tasks.tasks);
-            FilterByToDo(tasks.tasks, headers["FilterByToDo"]);
-            FilterByHP(tasks.tasks,headers["FilterByHP"]);
-            FilterByIPAndHP(tasks.tasks, headers["FilterByIPAndHP"]);
+            try
+            {
+
+
+                AddTask(null, new Tb_tasks("Nueva tarea", new Priorities().priorities[1], new States().states[2]));
+
+                OrderByPriority(tasks.tasks, GetDictionaryValue("OrderByPriority"));
+                OrderByState(tasks.tasks, GetDictionaryValue("OrderByState"));
+                OrderByPriorityAndState(tasks.tasks, GetDictionaryValue("OrderByPriorityAndState"));
+                GroupByState(tasks.tasks, GetDictionaryValue("GroupByState"));
+                GroupByPriority(tasks.tasks, GetDictionaryValue("GroupByPriority"));
+                FilterByToDo(tasks.tasks, GetDictionaryValue("FilterByToDo"));
+                FilterByHP(tasks.tasks, GetDictionaryValue("FilterByHP"));
+                FilterByIPAndHP(tasks.tasks, GetDictionaryValue("FilterByIPAndHP"));
+            }
+            catch (CustomExceptions ex) {
+                Console.WriteLine($"Ocurrio un error: {ex.ToString()}");
+
+                OrderByPriority(tasks.tasks);
+                OrderByState(tasks.tasks);
+                OrderByPriorityAndState(tasks.tasks);
+                GroupByState(tasks.tasks);
+                GroupByPriority(tasks.tasks);
+                FilterByToDo(tasks.tasks);
+                FilterByHP(tasks.tasks);
+                FilterByIPAndHP(tasks.tasks);
+            } catch (Exception ex) {
+                Console.WriteLine("Error desconocido: ");
+                Console.WriteLine(ex.ToString());
+            }
+
+
             Console.WriteLine("End");
 
         }
@@ -64,6 +94,17 @@ namespace sitic_gtp
         // TIPOS DE CALLBACK
         // Func<T, TReturn> Recibe y retorna
         // Action<T> Recibe pero puede ser void
+
+        private static string GetDictionaryValue(string key) {
+
+            if(headers.TryGetValue(key, out string value))
+            {
+                return value;
+            }
+
+            GetDictionaryValue("Default");
+            throw new CustomExceptions("Header no existe", EErrors.Validation);
+        }
 
         private static void PrintTasks(
             List<Tb_tasks> tasks,
@@ -194,5 +235,23 @@ namespace sitic_gtp
 
             return filter;
         }
+
+        //No es necesario retornar, debido a que el objeto se modifica por referencia;
+        private static void AddTask(Tasks tasks,Tb_tasks task) {
+            if (tasks == null)
+                throw new CustomExceptions("La lista de Tasks es null", EErrors.Null);
+
+            if (task == null)
+                throw new CustomExceptions("La tarea es null", EErrors.Null);
+
+
+            tasks.tasks.Add(task);
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.WriteLine("Tarea insertada con éxito");
+            Console.ResetColor();
+            PrintTasks(tasks.tasks, "insertado");
+        }
     }
+    #endregion
 }
